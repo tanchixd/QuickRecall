@@ -107,4 +107,10 @@ QuickRecall is a minimal, fast, mobile-first Progressive Web App (PWA) that conv
   - Updated `vite.config.ts` Workbox configuration with `navigateFallbackDenylist: [/^\/api/]` and disabled development service worker generation.
   - Added clean unregistration script in `index.html` for any stale service workers.
   - Verified with live curl tests returning 200/400 (no 404), lint, and build.
+- [x] **17. Resolve Gemini Model 404 Not Found & API Stabilization**:
+  - Diagnosed exact cause of 404 error during question generation: `candidateModels` in `server.ts` attempted to call deprecated/unsupported model names (`gemini-3.5-flash-lite`), which returned HTTP 404 `NOT_FOUND` from Google's API.
+  - Replaced candidate models with verified `@google/genai` models: `gemini-3.1-flash-lite` (first priority for fast, stable JSON schema generation and multimodal analysis), `gemini-flash-latest`, and `gemini-3.8-flash`.
+  - Enhanced error parsing in `server.ts` to decode JSON error payloads from upstream APIs and present friendly guidance (e.g. handling momentary 503 load spikes).
+  - Sanitized response JSON parsing to handle optional markdown code fences.
+  - Verified live generation endpoint with test payloads; confirmed fast question & SVG diagram generation.
 

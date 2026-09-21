@@ -265,21 +265,25 @@ Core principles:
       safetySettings,
     };
 
-    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.8-flash'];
+    // Candidate models strictly supported by @google/genai SDK (prioritize fast, stable models)
+    const candidateModels = ['gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
     let response: any = null;
     let lastError: any = null;
 
     for (const modelName of candidateModels) {
       try {
+        console.log(`Attempting question generation with model: ${modelName}...`);
         response = await ai.models.generateContent({
           model: modelName,
           contents,
           config: generateConfig,
         });
         if (response && response.text) {
+          console.log(`Successfully generated content using ${modelName}`);
           break;
         }
       } catch (err: any) {
+        console.warn(`Model ${modelName} encountered error:`, err?.message || err);
         lastError = err;
       }
     }
@@ -288,7 +292,10 @@ Core principles:
       throw lastError || new Error('No response received from Gemini model.');
     }
 
-    const responseText = response.text;
+    let responseText = response.text.trim();
+    if (responseText.startsWith('```')) {
+      responseText = responseText.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+    }
     if (!responseText) {
       throw new Error('No response received from Gemini.');
     }
@@ -363,8 +370,29 @@ Core principles:
     });
   } catch (error: any) {
     console.error('Error generating questions:', error);
+
+    let cleanMessage = 'Failed to generate questions. Please try again.';
+    if (error && error.message) {
+      try {
+        const parsed = JSON.parse(error.message);
+        if (parsed?.error?.message) {
+          cleanMessage = parsed.error.message;
+        } else if (parsed?.message) {
+          cleanMessage = parsed.message;
+        } else {
+          cleanMessage = error.message;
+        }
+      } catch {
+        cleanMessage = error.message;
+      }
+    }
+
+    if (cleanMessage.includes('503') || cleanMessage.toLowerCase().includes('high demand')) {
+      cleanMessage = 'The AI model is momentarily experiencing high demand. Please click Generate again in a few seconds.';
+    }
+
     return res.status(500).json({
-      error: error.message || 'Failed to generate questions. Please try again.',
+      error: cleanMessage,
     });
   }
 });
