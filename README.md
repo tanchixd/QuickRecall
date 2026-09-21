@@ -1,123 +1,184 @@
-# QuickRecall
+<div align="center">
 
-> **Turn study notes, lecture PDFs, textbook photos, and diagrams into high-yield active-recall questions and interactive visual labeling exercises for rapid, durable learning.**
+  <!-- Animated Gradient Banner -->
+  <img src="https://readme-typing-svg.demolab.com?font=Outfit&size=40&duration=3000&pause=1000&color=6366F1&center=true&vCenter=true&width=800&lines=QuickRecall;Turn+Notes+Into+Active+Recall;Master+Diagrams+%26+Concepts+Faster" alt="QuickRecall Banner" />
 
-QuickRecall is a full-stack revision application designed for students and self-directed learners. Instead of passively re-reading notes, QuickRecall extracts core concepts, causal relationships, and visual structures from raw study materials to build structured active-recall question decks and interactive diagram tests.
+  <p align="center">
+    <strong>🚀 Transform passive study materials into high-yield active recall decks & interactive visual labeling exercises.</strong>
+  </p>
 
----
+  <!-- Colorful Tech Badges -->
+  <p align="center">
+    <img src="https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS_v4-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+    <img src="https://img.shields.io/badge/Gemini_2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
+    <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
+    <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+    <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  </p>
 
-## Key Capabilities
+  <!-- Quick Links -->
+  <p align="center">
+    <a href="#-key-capabilities"><img src="https://img.shields.io/badge/✨_Features-8B5CF6?style=flat-square" alt="Features" /></a>
+    <a href="#-architecture--technology-stack"><img src="https://img.shields.io/badge/🏗️_Architecture-EC4899?style=flat-square" alt="Architecture" /></a>
+    <a href="#-getting-started"><img src="https://img.shields.io/badge/🚀_Get_Started-10B981?style=flat-square" alt="Get Started" /></a>
+  </p>
 
-### 1. Multimodal Study Material Ingestion
-- **Text & Lecture Notes**: Direct pasting or typing of summary notes, syllabi, or chapter outlines.
-- **Photos & Scans**: Upload high-resolution images of textbook diagrams, handwritten notes, flashcards, or whiteboards.
-- **PDF Documents**: Direct upload of lecture slides, textbook excerpts, or reading packets.
+  <hr style="border: none; height: 2px; background: linear-gradient(to right, transparent, #6366F1, #EC4899, transparent); margin: 30px 0;" />
 
-### 2. High-Yield Question Generation
-- Powered by the Google Gemini API (`@google/genai` with `gemini-2.5-flash`) via an Express backend proxy to protect API keys.
-- Questions categorized into distinct learning modalities:
-  - **Conceptual**: Deep comprehension and synthesis.
-  - **Definition**: Core terminology and formal distinctions.
-  - **Cause & Effect**: Triggers, sequences, mechanisms, and outcomes.
-  - **Factual**: Quantitative rules, steps, components, and formulas.
-  - **Application**: Problem scenarios, troubleshooting, and clinical/practical application.
-  - **Diagram**: Identification of visual structures and flow paths.
-- Configurable study depth: **Easy**, **Medium**, or **Hard**, with selectable deck sizes (5, 10, or 20 questions).
+</div>
 
-### 3. Interactive Diagrams & Active-Recall Pin Labeling
-- **Generated Visual Schematics**: Generates clean, dark-mode SVG schematics for anatomical or process-based topics (e.g., mitochondria, nephrons, photosynthesis, neural synapses).
-- **Source Image Pinning**: Maps numbered markers (`[1]`, `[2]`, `[3]`) directly onto uploaded diagram images.
-- **Target Pin Highlighting**: When studying a diagram question, the active marker pulses on the canvas, keeping the label concealed until the student tests their recall and reveals the answer.
-- **Interactive Inspection**: Full-screen inspection modal with tooltips, descriptions, and manual label peeking.
+## 🎯 What is QuickRecall?
 
-### 4. Dual Study Interfaces
-- **Focus Flashcard Mode**: Distraction-free single-card study with keyboard shortcuts (`Space` to flip, `1` for Knew It, `2` for Revise, `←`/`→` for navigation).
-- **List Review Mode**: Comprehensive overview with real-time status filtering (`All`, `Needs Revision`, `Mastered`, `Unreviewed`, `Diagrams`), batch reveal/hide, and direct self-scoring.
+QuickRecall is a **full-stack revision application** designed for students and self-directed learners who want to stop passively re-reading notes. Instead, it extracts core concepts, causal relationships, and visual structures from raw study materials to build:
 
-### 5. Export & Interoperability
-- **Anki Deck Export**: Download TSV formatted specifically for direct import into Anki with preserved tags and HTML line breaks.
-- **Printable Study Sheet**: Clean, formatted print layout with optional question-only or question + answer configurations.
-- **Markdown & JSON**: Raw exports for personal knowledge bases (Obsidian, Notion) or local archiving.
+-   ✅ **Structured Active-Recall Question Decks**
+-   ✅ **Interactive Diagram Labeling Tests**
+-   ✅ **Anki-Compatible Export Files**
 
-### 6. Cloud Sync & Security
-- **Firebase Authentication**: Guest/anonymous login and Google sign-in.
-- **Cloud Firestore Persistence**: Saved study sets, revision progress, and mastery metrics synced across devices.
-- **Hardened Security Rules**: Schema validation, volumetric limits, and ownership verification enforced at the database layer.
+Powered by **Gemini 2.5 Flash**, it turns PDFs, lecture photos, and text notes into durable learning experiences in seconds.
 
 ---
 
-## Architecture & Technology Stack
+## ✨ Key Capabilities
+
+### 📥 Multimodal Study Material Ingestion
+| Input Type | Description |
+| :--- | :--- |
+| 📝 **Text & Notes** | Paste summaries, syllabi, or chapter outlines directly |
+| 📸 **Photos & Scans** | Upload textbook diagrams, handwritten notes, or whiteboards |
+| 📄 **PDF Documents** | Process lecture slides, textbook excerpts, or reading packets |
+
+### 🧠 High-Yield Question Generation
+AI-powered categorization across six distinct learning modalities:
+
+-   🔵 **Conceptual** – Deep comprehension and synthesis
+-   🟢 **Definition** – Core terminology and formal distinctions
+-   🟡 **Cause & Effect** – Triggers, sequences, mechanisms, outcomes
+-   🟠 **Factual** – Quantitative rules, steps, components, formulas
+-   🔴 **Application** – Problem scenarios, troubleshooting, clinical use
+-   🟣 **Diagram** – Visual structure identification and flow paths
+
+> ⚙️ **Configurable Depth:** Easy / Medium / Hard with selectable deck sizes (5, 10, or 20 questions)
+
+### 🖼️ Interactive Diagrams & Pin Labeling
+-   **Generated SVG Schematics** – Clean, dark-mode visuals for anatomical/process topics
+-   **Source Image Pinning** – Numbered markers `[1]`, `[2]`, `[3]` mapped directly onto uploads
+-   **Pulse Highlighting** – Active marker pulses during study; label concealed until recall test
+-   **Full-Screen Inspection** – Modal with tooltips, descriptions, and manual label peeking
+
+### 🎮 Dual Study Interfaces
+-   **⌨️ Focus Flashcard Mode** – Distraction-free single-card study with keyboard shortcuts (`Space` flip, `1` Knew It, `2` Revise, `←/→` navigate)
+-   **📋 List Review Mode** – Real-time filtering (`All`, `Needs Revision`, `Mastered`, `Unreviewed`, `Diagrams`), batch reveal/hide, self-scoring
+
+### 📤 Export & Interoperability
+-   **Anki TSV Export** – Direct import with preserved tags and HTML formatting
+-   **Printable Study Sheets** – Clean print layout (question-only or Q+A)
+-   **Markdown & JSON** – Raw exports for Obsidian, Notion, or local archiving
+
+### ☁️ Cloud Sync & Security
+-   **Firebase Auth** – Guest/anonymous + Google sign-in
+-   **Firestore Persistence** – Decks, progress, and mastery metrics synced across devices
+-   **Hardened Rules** – Schema validation, volumetric limits, ownership verification at DB layer
+
+---
+
+## 🏗️ Architecture & Technology Stack
+
+<div align="center">
 
 | Layer | Technology | Details |
 | :--- | :--- | :--- |
-| **Frontend Framework** | React 19 + TypeScript | Single-page application bundled with Vite |
-| **Styling & UI** | Tailwind CSS v4 | Dark-mode interface, high-contrast typography, accessible color hierarchy |
-| **Animations** | Motion (`motion/react`) | Card flips, progress bars, and modal transitions |
-| **Icons** | Lucide React | Clean, outlined 24px icon set |
-| **Backend / API** | Node.js + Express | Proxies Gemini API requests and serves client assets |
-| **AI Engine** | `@google/genai` | Gemini 2.5 Flash with structured JSON output schema |
-| **Database & Auth** | Firebase (Firestore + Auth) | Cloud storage for decks and user statistics |
-| **Production Build** | Vite + esbuild | Compiles backend to self-contained `dist/server.cjs` and client to `dist/` |
+| 🎨 **Frontend** | React 19 + TypeScript | SPA bundled with Vite |
+| 💅 **Styling** | Tailwind CSS v4 | Dark-mode, high-contrast, accessible |
+| 🎬 **Animations** | Motion (`motion/react`) | Card flips, progress bars, modals |
+| 🖼️ **Icons** | Lucide React | Clean outlined 24px icon set |
+| ⚙️ **Backend** | Node.js + Express | Gemini API proxy + static asset server |
+| 🤖 **AI Engine** | `@google/genai` | Gemini 2.5 Flash w/ structured JSON output |
+| 🔥 **Database** | Firebase Firestore + Auth | Cloud storage for decks & user stats |
+| 📦 **Build** | Vite + esbuild | Self-contained `dist/server.cjs` + client |
+
+</div>
 
 ---
 
-## Directory Structure
+## 📁 Directory Structure
 
 ```text
-├── index.html                   # HTML entry point with SEO and OpenGraph tags
-├── server.ts                    # Express server with Gemini multimodal API endpoint
+├── index.html                   # HTML entry point with SEO & OpenGraph tags
+├── server.ts                    # Express server + Gemini multimodal endpoint
 ├── firebase-blueprint.json      # Firestore schema blueprint
-├── firestore.rules              # Hardened Firestore security rules
+├── firestore.rules              # Hardened security rules
 ├── src/
-│   ├── main.tsx                 # React application bootstrap
-│   ├── App.tsx                  # Main state container and view router
-│   ├── index.css                # Global Tailwind CSS imports
-│   ├── types.ts                 # Shared TypeScript interfaces and types
+│   ├── main.tsx                 # React app bootstrap
+│   ├── App.tsx                  # State container & view router
+│   ├── index.css                # Global Tailwind imports
+│   ├── types.ts                 # Shared TS interfaces
 │   ├── components/
 │   │   ├── AuthModal.tsx        # Firebase sign-in dialog
-│   │   ├── CompletionBanner.tsx # Study session summary and completion actions
-│   │   ├── DiagramViewer.tsx    # Interactive SVG and image diagram labeling viewer
-│   │   ├── FileUploadArea.tsx   # Drag-and-drop file upload with preview
-│   │   ├── FocusFlashcard.tsx   # Keyboard-enabled flashcard study mode
-│   │   ├── Header.tsx           # App navigation bar with user profile & cloud sync
-│   │   ├── NoteInputForm.tsx    # Study material input, preset samples, and settings
-│   │   ├── QuestionCard.tsx     # Single question card for list view
-│   │   ├── QuestionList.tsx     # List view with filters, export menu, and stats
+│   │   ├── CompletionBanner.tsx # Session summary & actions
+│   │   ├── DiagramViewer.tsx    # Interactive SVG/image labeling
+│   │   ├── FileUploadArea.tsx   # Drag-drop upload + preview
+│   │   ├── FocusFlashcard.tsx   # Keyboard-enabled flashcards
+│   │   ├── Header.tsx           # Nav bar + profile + sync
+│   │   ├── NoteInputForm.tsx    # Material input + presets
+│   │   ├── QuestionCard.tsx     # Single card for list view
+│   │   ├── QuestionList.tsx     # List view + filters + export
 │   │   └── SavedSetsModal.tsx   # Cloud revision set manager
 │   ├── context/
-│   │   └── AuthContext.tsx      # Firebase auth provider and sync hook
+│   │   └── AuthContext.tsx      # Firebase auth provider
 │   ├── lib/
-│   │   └── firebase.ts          # Firebase SDK initialization and Firestore helpers
+│   │   └── firebase.ts          # SDK init + Firestore helpers
 │   └── services/
-│       └── aiService.ts         # Client wrapper for /api/generate-questions
+│       └── aiService.ts         # Client wrapper for /api/generate
 ```
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 20+
-- A Google Gemini API key (`GEMINI_API_KEY`)
+-   **Node.js 20+**
+-   **Google Gemini API Key** ([Get one here](https://aistudio.google.com/apikey))
 
-### Environment Setup
-Create a `.env` file in the root directory based on `.env.example`:
+### ⚡ Environment Setup
+
+Create a `.env` file in the root directory:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-### Development
+### 🛠️ Development
+
 ```bash
+# Install dependencies
+npm install
+
 # Start dev server (Express + Vite) on port 3000
 npm run dev
 ```
 
-### Build & Production Run
+### 📦 Build & Production
+
 ```bash
-# Build client static files and bundle backend to dist/server.cjs
+# Build client + bundle backend to dist/server.cjs
 npm run build
 
 # Start production server
 npm start
 ```
+
+---
+
+<div align="center">
+
+  <hr style="border: none; height: 2px; background: linear-gradient(to right, transparent, #6366F1, #EC4899, transparent); margin: 30px 0;" />
+
+  <p>
+    <sub>Built with ❤️ for active learners everywhere</sub><br/>
+    <sub><strong>QuickRecall</strong> • Stop Re-Reading. Start Recalling.</sub>
+  </p>
+
+</div>
