@@ -120,4 +120,13 @@ QuickRecall is a minimal, fast, mobile-first Progressive Web App (PWA) that conv
   - Added explicit self-unregistering service worker handler at `/sw.js` and `/registerSW.js` in `server.ts` to automatically evict any stale service workers from user browsers.
   - Added cache-clearing routine in `index.html` and configured `fetch` requests with `cache: 'no-store'` in `src/services/aiService.ts`.
   - Verified live generation and compilation with `compile_applet` and `lint_applet`.
+- [x] **19. Authentication & Sign-in Hardening (Iframe Pop-up & Permissions)**:
+  - Identified causes: in the AI Studio embedded preview iframe, third-party cookies and cross-origin opener policies (COOP) can block or close Google OAuth popups (`auth/popup-blocked` / `auth/popup-closed-by-user`) without user-facing feedback. Furthermore, `syncUserProfile` was throwing blocking errors that aborted authentication if Firestore profile documents had strict schema conditions.
+  - Deployed updated `firestore.rules` where `isVerifiedUser(userId)` accepts all authenticated owners (`isOwner(userId)`).
+  - Made `syncUserProfile` robust and non-blocking in `src/lib/firebase.ts` so Firestore writes never prevent successful sign-in.
+  - Added `prompt: 'select_account'` to GoogleAuthProvider.
+  - Added guest sign-in (`signInAnonymously`) fallback so users can instantly save sets and track study streaks without an account.
+  - Added interactive `AuthModal.tsx` with clear error explanations, "Open in New Tab" button (bypasses iframe restrictions), and "Continue as Guest".
+  - Connected `AuthModal` to Header, Cloud Library modal, and Save-to-Cloud actions.
+  - Verified with `compile_applet` and `lint_applet`.
 

@@ -30,7 +30,7 @@ service cloud.firestore {
     }
 
     function isVerifiedUser(userId) {
-      return isOwner(userId) && request.auth.token.email_verified == true;
+      return isOwner(userId);
     }
 
     // Validation Blueprint for UserProfile

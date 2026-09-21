@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { NoteInputForm } from './components/NoteInputForm';
 import { QuestionList } from './components/QuestionList';
 import { SavedSetsModal } from './components/SavedSetsModal';
+import { AuthModal } from './components/AuthModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { Footer } from './components/Footer';
 import { generateQuestions } from './services/aiService';
@@ -120,6 +121,7 @@ export default function App() {
     signIn,
   } = useAuth();
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [activeCloudSetId, setActiveCloudSetId] = useState<string | null>(null);
   const [isSavingToCloud, setIsSavingToCloud] = useState(false);
   const [isCloudSaved, setIsCloudSaved] = useState(false);
@@ -277,12 +279,8 @@ export default function App() {
 
   const handleSaveToCloud = async () => {
     if (!user) {
-      try {
-        await signIn();
-      } catch (err) {
-        console.error('Sign in cancelled or failed:', err);
-        return;
-      }
+      setIsAuthModalOpen(true);
+      return;
     }
 
     setIsSavingToCloud(true);
@@ -321,6 +319,7 @@ export default function App() {
         onReset={handleReset}
         hasQuestions={view === 'questions'}
         onOpenLibrary={() => setIsLibraryOpen(true)}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main Content Area with smooth screen transitions */}
@@ -420,6 +419,12 @@ export default function App() {
         isOpen={isLibraryOpen}
         onClose={() => setIsLibraryOpen(false)}
         onSelectSet={handleSelectCloudSet}
+      />
+
+      {/* Authentication & Sign-in Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
 
       {/* Footer with Buy Me a Coffee link */}

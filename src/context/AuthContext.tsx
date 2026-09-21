@@ -3,6 +3,7 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import {
   auth,
   loginWithGoogle,
+  loginAsGuest,
   logoutUser,
   subscribeToUserProfile,
   subscribeToSavedRevisionSets,
@@ -17,9 +18,13 @@ interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
+  signingIn: boolean;
+  authError: string | null;
+  clearAuthError: () => void;
   savedSets: SavedRevisionSet[];
   savedSetsLoading: boolean;
   signIn: () => Promise<void>;
+  signInAsGuest: () => Promise<void>;
   signOut: () => Promise<void>;
   saveSet: (
     topic: string,
@@ -44,8 +49,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [signingIn, setSigningIn] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [savedSets, setSavedSets] = useState<SavedRevisionSet[]>([]);
   const [savedSetsLoading, setSavedSetsLoading] = useState<boolean>(false);
+
+  const clearAuthError = () => setAuthError(null);
 
   // Auth state listener
   useEffect(() => {
@@ -93,17 +102,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [user]);
 
   const signIn = async () => {
+    setSigningIn(true);
+    setAuthError(null);
     try {
       await loginWithGoogle();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign in failed:', error);
+      let userFriendlyMessage = 'Google Sign-in was not completed. Please try again.';
+      const code = error?.code || '';
+      const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
+
+      if (code === 'auth/popup-blocked') {
+        userFriendlyMessage = isInIframe
+          ? 'Browser pop-ups are restricted inside this preview frame. Please open the app in a new tab to authenticate, or click "Continue as Guest".'
+          : 'Your browser blocked the Google sign-in window. Please allow pop-ups for this site and retry.';
+      } else if (code === 'auth/popup-closed-by-user') {
+        userFriendlyMessage = 'Sign-in window was closed before completing. Click Sign In to try again.';
+      } else if (code === 'auth/unauthorized-domain') {
+        userFriendlyMessage = 'This preview domain is pending authorization in Firebase Console. Click "Open in New Tab" or use Guest Mode to save progress locally.';
+      } else if (code === 'auth/cancelled-popup-request') {
+        userFriendlyMessage = 'Another sign-in prompt is already active. Please finish or close the other window.';
+      } else if (error?.message) {
+        userFriendlyMessage = error.message;
+      }
+      setAuthError(userFriendlyMessage);
       throw error;
+    } finally {
+      setSigningIn(false);
+    }
+  };
+
+  const signInAsGuest = async () => {
+    setSigningIn(true);
+    setAuthError(null);
+    try {
+      await loginAsGuest();
+    } catch (error: any) {
+      console.error('Guest sign-in failed:', error);
+      setAuthError(error.message || 'Could not start guest session.');
+      throw error;
+    } finally {
+      setSigningIn(false);
     }
   };
 
   const signOut = async () => {
     try {
       await logoutUser();
+      setAuthError(null);
     } catch (error) {
       console.error('Sign out failed:', error);
       throw error;
@@ -172,9 +218,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         user,
         profile,
         loading,
+        signingIn,
+        authError,
+        clearAuthError,
         savedSets,
         savedSetsLoading,
         signIn,
+        signInAsGuest,
         signOut,
         saveSet,
         updateSetProgress,

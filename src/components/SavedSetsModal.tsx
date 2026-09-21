@@ -11,6 +11,9 @@ import {
   Sparkles,
   Loader2,
   Award,
+  AlertCircle,
+  ExternalLink,
+  UserCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { SavedRevisionSet } from '../types';
@@ -26,7 +29,18 @@ export const SavedSetsModal: React.FC<SavedSetsModalProps> = ({
   onClose,
   onSelectSet,
 }) => {
-  const { user, profile, savedSets, savedSetsLoading, deleteSet, signIn } = useAuth();
+  const {
+    user,
+    profile,
+    savedSets,
+    savedSetsLoading,
+    deleteSet,
+    signIn,
+    signInAsGuest,
+    signingIn,
+    authError,
+  } = useAuth();
+  const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
 
   if (!isOpen) return null;
 
@@ -123,27 +137,78 @@ export const SavedSetsModal: React.FC<SavedSetsModalProps> = ({
           {/* Content Body */}
           <div className="flex-1 overflow-y-auto p-5 space-y-3">
             {!user ? (
-              <div className="py-12 text-center space-y-4">
+              <div className="py-8 text-center space-y-4 max-w-sm mx-auto">
                 <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400">
                   <Cloud className="w-7 h-7" />
                 </div>
-                <div className="space-y-1 max-w-sm mx-auto">
-                  <h4 className="text-base font-bold text-white">Save & Sync with Google</h4>
+                <div className="space-y-1">
+                  <h4 className="text-base font-bold text-white">Save & Sync Your Sets</h4>
                   <p className="text-xs text-slate-400 leading-relaxed">
                     Sign in to save your active-recall question sets, track your mastery streak,
-                    and practice from your phone, tablet, or laptop.
+                    and practice from any device.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await signIn();
-                  }}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-sm font-semibold text-white shadow-lg transition cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Sign In with Google</span>
-                </button>
+
+                {authError && (
+                  <div className="rounded-xl border border-red-500/30 bg-red-950/30 p-3 text-xs text-red-200 flex items-start gap-2 text-left">
+                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                    <p className="leading-relaxed">{authError}</p>
+                  </div>
+                )}
+
+                <div className="space-y-2 pt-2">
+                  <button
+                    type="button"
+                    disabled={signingIn}
+                    onClick={async () => {
+                      try {
+                        await signIn();
+                      } catch {
+                        // handled by context
+                      }
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-sm font-semibold text-white shadow-lg transition cursor-pointer disabled:opacity-60"
+                  >
+                    {signingIn ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Connecting to Google...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        <span>Sign In with Google</span>
+                      </>
+                    )}
+                  </button>
+
+                  {isInIframe && (
+                    <button
+                      type="button"
+                      onClick={() => window.open(window.location.href, '_blank')}
+                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition cursor-pointer"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Open in New Tab (Bypass Frame)</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={signingIn}
+                    onClick={async () => {
+                      try {
+                        await signInAsGuest();
+                      } catch {
+                        // handled
+                      }
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-xs font-medium text-slate-300 transition cursor-pointer"
+                  >
+                    <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Continue as Guest</span>
+                  </button>
+                </div>
               </div>
             ) : savedSetsLoading ? (
               <div className="py-12 flex flex-col items-center justify-center space-y-3 text-slate-400">

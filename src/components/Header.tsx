@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Zap, Cloud, LogIn, LogOut } from 'lucide-react';
+import { Zap, Cloud, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,10 +7,11 @@ interface HeaderProps {
   onReset?: () => void;
   hasQuestions?: boolean;
   onOpenLibrary?: () => void;
+  onOpenAuth?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onReset, hasQuestions, onOpenLibrary }) => {
-  const { user, profile, loading, signIn, signOut, savedSets } = useAuth();
+export const Header: React.FC<HeaderProps> = ({ onReset, hasQuestions, onOpenLibrary, onOpenAuth }) => {
+  const { user, profile, loading, signingIn, signIn, signOut, savedSets } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   return (
@@ -132,12 +133,23 @@ export const Header: React.FC<HeaderProps> = ({ onReset, hasQuestions, onOpenLib
                 <button
                   id="sign-in-btn"
                   type="button"
-                  onClick={() => signIn()}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white transition shadow-sm cursor-pointer"
-                  title="Sign in with Google"
+                  disabled={signingIn}
+                  onClick={() => {
+                    if (onOpenAuth) {
+                      onOpenAuth();
+                    } else {
+                      signIn().catch(() => {});
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white transition shadow-sm cursor-pointer disabled:opacity-60"
+                  title="Sign In"
                 >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Sign In</span>
+                  {signingIn ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <LogIn className="w-3.5 h-3.5" />
+                  )}
+                  <span className="hidden sm:inline">{signingIn ? 'Connecting...' : 'Sign In'}</span>
                 </button>
               )}
             </div>

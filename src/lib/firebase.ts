@@ -3,6 +3,9 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  signInAnonymously,
   signOut,
   User,
 } from 'firebase/auth';
@@ -35,6 +38,7 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 // Standard error handler conforming to FirestoreErrorInfo
 export function handleFirestoreError(
@@ -78,10 +82,29 @@ export async function testConnection(): Promise<void> {
 export async function loginWithGoogle(): Promise<User> {
   try {
     const result = await signInWithPopup(auth, googleProvider);
-    await syncUserProfile(result.user);
+    try {
+      await syncUserProfile(result.user);
+    } catch (syncErr) {
+      console.warn('Non-blocking user profile sync error:', syncErr);
+    }
     return result.user;
   } catch (err) {
     console.error('Sign-in error:', err);
+    throw err;
+  }
+}
+
+export async function loginAsGuest(): Promise<User> {
+  try {
+    const result = await signInAnonymously(auth);
+    try {
+      await syncUserProfile(result.user);
+    } catch (syncErr) {
+      console.warn('Guest profile sync non-blocking error:', syncErr);
+    }
+    return result.user;
+  } catch (err) {
+    console.error('Guest sign-in error:', err);
     throw err;
   }
 }
@@ -97,16 +120,16 @@ export async function logoutUser(): Promise<void> {
 
 // User profile synchronization
 export async function syncUserProfile(user: User): Promise<void> {
+  if (!user || !user.uid) return;
   const userRef = doc(db, 'users', user.uid);
-  const path = `users/${user.uid}`;
 
   try {
     const snap = await getDoc(userRef);
     if (!snap.exists()) {
       await setDoc(userRef, {
         id: user.uid,
-        email: user.email || '',
-        displayName: user.displayName || 'Learner',
+        email: user.email || `${user.uid}@guest.quickrecall.local`,
+        displayName: user.displayName || (user.isAnonymous ? 'Guest Learner' : 'Learner'),
         photoURL: user.photoURL || '',
         totalQuestionsGenerated: 0,
         totalReviewed: 0,
@@ -122,7 +145,7 @@ export async function syncUserProfile(user: User): Promise<void> {
       });
     }
   } catch (err) {
-    handleFirestoreError(err, OperationType.WRITE, path);
+    console.warn('User profile sync to Firestore encountered an issue (non-blocking):', err);
   }
 }
 
