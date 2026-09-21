@@ -17,7 +17,9 @@ export async function generateQuestions(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
         },
+        cache: 'no-store',
         body: JSON.stringify(payload),
       });
 
@@ -27,8 +29,17 @@ export async function generateQuestions(
       }
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `Server responded with status ${response.status}`);
+        let errorMsg = '';
+        try {
+          const errData = await response.json();
+          errorMsg = errData.error || errData.message || '';
+        } catch {
+          // JSON parsing failed (e.g. HTML error page)
+        }
+        if (!errorMsg) {
+          errorMsg = `Server error (HTTP ${response.status}). Please try again in a few moments.`;
+        }
+        throw new Error(errorMsg);
       }
 
       const data: GenerateQuestionsResponse = await response.json();

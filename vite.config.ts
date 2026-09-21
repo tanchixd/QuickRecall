@@ -2,59 +2,16 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
-import {VitePWA} from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
   return {
     plugins: [
       react(),
       tailwindcss(),
-      VitePWA({
-        registerType: 'autoUpdate',
-        includeAssets: ['apple-touch-icon.png', 'icon.svg'],
-        manifest: {
-          id: '/',
-          name: 'QuickRecall',
-          short_name: 'QuickRecall',
-          description: 'Turn study notes into high-quality active-recall questions for rapid revision.',
-          theme_color: '#0f141c',
-          background_color: '#0f141c',
-          display: 'standalone',
-          start_url: '/',
-          scope: '/',
-          icons: [
-            {
-              src: '/pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-              purpose: 'any',
-            },
-            {
-              src: '/pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any',
-            },
-            {
-              src: '/pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'maskable',
-            },
-          ],
-        },
-        workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-          navigateFallbackDenylist: [/^\/api/],
-        },
-        devOptions: {
-          enabled: false,
-        },
-      }),
     ],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(process.cwd(), '.'),
       },
     },
     server: {

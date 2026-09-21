@@ -113,4 +113,11 @@ QuickRecall is a minimal, fast, mobile-first Progressive Web App (PWA) that conv
   - Enhanced error parsing in `server.ts` to decode JSON error payloads from upstream APIs and present friendly guidance (e.g. handling momentary 503 load spikes).
   - Sanitized response JSON parsing to handle optional markdown code fences.
   - Verified live generation endpoint with test payloads; confirmed fast question & SVG diagram generation.
+- [x] **18. Fix Production/Preview Server 404 Error (CommonJS Crash & Service Worker Interception)**:
+  - Root Cause 1: In `server.ts`, `const __filename = fileURLToPath(import.meta.url);` caused the bundled CommonJS production server (`dist/server.cjs`) to throw `TypeError: The "path" argument must be of type string. Received undefined` because `import.meta.url` is undefined in CommonJS. This crashed the custom backend server on startup in deployed and preview containers, falling back to static hosting which returned 404 for all POST `/api/*` routes.
+  - Root Cause 2: Legacy PWA service worker (`sw.js`) previously registered in the client's browser was intercepting `fetch` calls and returning 404s.
+  - Solution: Removed `import.meta.url`, `fileURLToPath`, and unused directory variables from `server.ts`. Removed `VitePWA` from `vite.config.ts`.
+  - Added explicit self-unregistering service worker handler at `/sw.js` and `/registerSW.js` in `server.ts` to automatically evict any stale service workers from user browsers.
+  - Added cache-clearing routine in `index.html` and configured `fetch` requests with `cache: 'no-store'` in `src/services/aiService.ts`.
+  - Verified live generation and compilation with `compile_applet` and `lint_applet`.
 

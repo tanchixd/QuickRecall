@@ -1,16 +1,36 @@
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold, Type } from '@google/genai';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 const PORT = 3000;
+
+// Log incoming requests for debugging
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    console.log(`[API ${req.method}] ${req.originalUrl || req.url}`);
+  }
+  next();
+});
+
+// Immediately unregister and bypass any legacy PWA service workers that might intercept API requests in the user's browser
+app.get(['/sw.js', '/registerSW.js', '/workbox-*.js'], (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.send(`
+    self.addEventListener('install', (e) => { self.skipWaiting(); });
+    self.addEventListener('activate', (e) => {
+      self.registration.unregister().then(() => {
+        return self.clients.matchAll({ type: 'window' });
+      }).then((clients) => {
+        clients.forEach((c) => { c.navigate(c.url); });
+      });
+    });
+  `);
+});
 
 app.use(express.json({ limit: '40mb' }));
 app.use(express.urlencoded({ extended: true, limit: '40mb' }));
