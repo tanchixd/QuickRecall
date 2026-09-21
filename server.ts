@@ -15,6 +15,17 @@ const PORT = 3000;
 app.use(express.json({ limit: '40mb' }));
 app.use(express.urlencoded({ extended: true, limit: '40mb' }));
 
+// CORS & Preflight middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // Lazy-initialized Gemini client
 let aiClient: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI {
@@ -36,7 +47,7 @@ function getGeminiClient(): GoogleGenAI {
 }
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/api/health/'], (req, res) => {
   res.json({ status: 'ok', app: 'QuickRecall' });
 });
 
@@ -46,8 +57,10 @@ interface UploadedFilePayload {
   base64Data: string;
 }
 
-// API endpoint for generating active-recall revision questions (supports text, PDF, photos, generated diagrams, and source labeling)
-app.post('/api/generate-questions', async (req, res) => {
+// API endpoints for generating active-recall revision questions (supports text, PDF, photos, generated diagrams, and source labeling)
+const GENERATE_ROUTES = ['/api/generate-questions', '/api/generate', '/api/generate-questions/', '/api/generate/'];
+
+app.post(GENERATE_ROUTES, async (req, res) => {
   try {
     const {
       notes,

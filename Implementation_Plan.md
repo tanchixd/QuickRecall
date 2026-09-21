@@ -100,4 +100,11 @@ QuickRecall is a minimal, fast, mobile-first Progressive Web App (PWA) that conv
   - Verified with `lint_applet`, `compile_applet`, and `deploy_firebase`.
 - [x] **15. Repository Documentation**:
   - Created root `README.md` detailing application overview, key features (multimodal ingestion, active-recall question engine, interactive diagram pin labeling, dual study modes, Anki/PDF exports, Firebase cloud sync), architecture stack, directory structure, and setup instructions.
+- [x] **16. Fix Server 404 Error on Generate**:
+  - Identified root causes: route naming mismatch (`/api/generate` vs `/api/generate-questions`), missing CORS/OPTIONS handling in Express, and aggressive service worker development interception.
+  - Added route aliases for `['/api/generate-questions', '/api/generate', '/api/generate-questions/', '/api/generate/']` in `server.ts`.
+  - Added endpoint fallback retry in `src/services/aiService.ts`.
+  - Updated `vite.config.ts` Workbox configuration with `navigateFallbackDenylist: [/^\/api/]` and disabled development service worker generation.
+  - Added clean unregistration script in `index.html` for any stale service workers.
+  - Verified with live curl tests returning 200/400 (no 404), lint, and build.
 
