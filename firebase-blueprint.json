@@ -1,0 +1,131 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and cumulative learning statistics",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "User unique identifier matching Firebase Auth UID",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "User verified Google account email address",
+          "maxLength": 320
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name",
+          "maxLength": 100
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "User avatar photo URL",
+          "maxLength": 2048
+        },
+        "totalQuestionsGenerated": {
+          "type": "number",
+          "description": "Lifetime count of questions generated"
+        },
+        "totalReviewed": {
+          "type": "number",
+          "description": "Lifetime count of questions reviewed"
+        },
+        "totalMastered": {
+          "type": "number",
+          "description": "Lifetime count of questions marked knew"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of account creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of last update"
+        }
+      },
+      "required": ["id", "email", "createdAt", "updatedAt"]
+    },
+    "RevisionSet": {
+      "title": "RevisionSet",
+      "description": "A saved study set of generated active-recall questions",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the revision set",
+          "maxLength": 128
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "User ID of the author",
+          "maxLength": 128
+        },
+        "topic": {
+          "type": "string",
+          "description": "Subject or title of the revision set",
+          "maxLength": 200
+        },
+        "difficulty": {
+          "type": "string",
+          "description": "Difficulty level of the questions",
+          "enum": ["Easy", "Medium", "Hard"]
+        },
+        "questionCount": {
+          "type": "number",
+          "description": "Number of questions in the set"
+        },
+        "knewCount": {
+          "type": "number",
+          "description": "Number of questions marked as knew"
+        },
+        "reviseCount": {
+          "type": "number",
+          "description": "Number of questions marked as need to revise"
+        },
+        "questions": {
+          "type": "array",
+          "description": "List of revision question items"
+        },
+        "diagram": {
+          "type": "object",
+          "description": "Optional educational diagram associated with the study set"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "topic",
+        "difficulty",
+        "questionCount",
+        "questions",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User account document containing study stats"
+    },
+    "/users/{userId}/revision_sets/{setId}": {
+      "schema": "RevisionSet",
+      "description": "Saved active-recall revision sets belonging to the user"
+    }
+  }
+}

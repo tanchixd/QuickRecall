@@ -1,0 +1,6 @@
+{
+  "name": "QuickRecall",
+  "description": "Turn notes, PDFs, photos & diagrams into high-quality active-recall questions for rapid revision.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,132 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isVerifiedUser(userId) {
+      return isOwner(userId) && request.auth.token.email_verified == true;
+    }
+
+    // Validation Blueprint for UserProfile
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['id', 'email', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'email', 'displayName', 'photoURL', 'totalQuestionsGenerated', 'totalReviewed', 'totalMastered', 'createdAt', 'updatedAt'])
+        && data.id == userId
+        && data.id == request.auth.uid
+        && data.email is string
+        && data.email.size() <= 320
+        && (request.auth.token.email != null ? data.email == request.auth.token.email : true)
+        && (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100))
+        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 2048))
+        && (!('totalQuestionsGenerated' in data) || (data.totalQuestionsGenerated is number && data.totalQuestionsGenerated >= 0))
+        && (!('totalReviewed' in data) || (data.totalReviewed is number && data.totalReviewed >= 0))
+        && (!('totalMastered' in data) || (data.totalMastered is number && data.totalMastered >= 0));
+    }
+
+    // Validation Blueprint for RevisionSet
+    function isValidRevisionSet(data, userId) {
+      return data.keys().hasAll(['id', 'ownerId', 'topic', 'difficulty', 'questionCount', 'questions', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'topic', 'difficulty', 'questionCount', 'knewCount', 'reviseCount', 'questions', 'diagram', 'createdAt', 'updatedAt'])
+        && data.id is string
+        && data.id.size() <= 128
+        && data.ownerId == userId
+        && data.ownerId == request.auth.uid
+        && data.topic is string
+        && data.topic.size() <= 200
+        && data.difficulty in ['Easy', 'Medium', 'Hard']
+        && data.questionCount is number
+        && data.questionCount >= 1
+        && data.questionCount <= 50
+        && (!('knewCount' in data) || (data.knewCount is number && data.knewCount >= 0))
+        && (!('reviseCount' in data) || (data.reviseCount is number && data.reviseCount >= 0))
+        && data.questions is list
+        && data.questions.size() >= 1
+        && data.questions.size() <= 50;
+    }
+
+    // User profile documents
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false; // Blanket user listing forbidden for PII privacy
+
+      allow create: if isVerifiedUser(userId)
+        && isValidId(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser(userId)
+        && isValidId(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().id == existing().id
+        && incoming().email == existing().email
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName',
+          'photoURL',
+          'totalQuestionsGenerated',
+          'totalReviewed',
+          'totalMastered',
+          'updatedAt'
+        ]);
+
+      allow delete: if isVerifiedUser(userId) && isValidId(userId);
+
+      // User's private saved revision sets
+      match /revision_sets/{setId} {
+        allow get: if isOwner(userId) && isValidId(setId);
+        allow list: if isOwner(userId);
+
+        allow create: if isVerifiedUser(userId)
+          && isValidId(setId)
+          && incoming().id == setId
+          && isValidRevisionSet(incoming(), userId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+
+        allow update: if isVerifiedUser(userId)
+          && isValidId(setId)
+          && isValidRevisionSet(incoming(), userId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (
+            // Action 1: Update study progress or recall marks
+            incoming().diff(existing()).affectedKeys().hasOnly(['knewCount', 'reviseCount', 'questions', 'updatedAt']) ||
+            // Action 2: Update topic or title
+            incoming().diff(existing()).affectedKeys().hasOnly(['topic', 'updatedAt'])
+          );
+
+        allow delete: if isVerifiedUser(userId) && isValidId(setId);
+      }
+    }
+  }
+}
